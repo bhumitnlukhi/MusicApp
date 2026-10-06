@@ -7,6 +7,7 @@ import '../../state/library_controller.dart';
 import '../../state/player_controller.dart';
 import '../navigation.dart';
 import '../widgets/common.dart';
+import '../widgets/motion.dart';
 import '../widgets/track_tile.dart';
 
 /// Library tab (dark): playlists, followed artists, saved albums, liked songs.
@@ -49,12 +50,30 @@ class _LibraryScreenState extends State<LibraryScreen> {
               ),
               const SizedBox(height: 12),
               Expanded(
-                child: switch (_tab) {
-                  0 => const _PlaylistsTab(),
-                  1 => const _ArtistsTab(),
-                  2 => const _AlbumsTab(),
-                  _ => const _LikedTab(),
-                },
+                child: AnimatedSwitcher(
+                  duration: Motion.medium,
+                  switchInCurve: Motion.decelerate,
+                  switchOutCurve: Curves.easeIn,
+                  transitionBuilder: (child, a) => FadeTransition(
+                    opacity: a,
+                    child: SlideTransition(
+                      position: Tween(
+                        begin: const Offset(0.06, 0),
+                        end: Offset.zero,
+                      ).animate(a),
+                      child: child,
+                    ),
+                  ),
+                  child: KeyedSubtree(
+                    key: ValueKey(_tab),
+                    child: switch (_tab) {
+                      0 => const _PlaylistsTab(),
+                      1 => const _ArtistsTab(),
+                      2 => const _AlbumsTab(),
+                      _ => const _LikedTab(),
+                    },
+                  ),
+                ),
               ),
             ],
           ),
@@ -80,7 +99,7 @@ class _PlaylistsTab extends StatelessWidget {
             height: 52,
             decoration: BoxDecoration(
               border: Border.all(color: p.border),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(Icons.add_rounded, color: p.fg),
           ),
@@ -92,14 +111,15 @@ class _PlaylistsTab extends StatelessWidget {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              gradient: const LinearGradient(
+              borderRadius: BorderRadius.circular(10),
+              // The song's colors, so Liked Songs glows with the music.
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF4B5BD6),
-                  Color(0xFFB45CC9),
-                  Color(0xFFF08A7E),
+                  p.accentDeep,
+                  Color.lerp(p.accent, p.glow, 0.5)!,
+                  p.glow,
                 ],
               ),
             ),
@@ -109,12 +129,14 @@ class _PlaylistsTab extends StatelessWidget {
               size: 22,
             ),
           ),
+          index: 1,
           title: 'Liked Songs',
           subtitle: '${library.liked.length} songs',
           onTap: context.openLiked,
         ),
-        for (final playlist in library.playlists)
+        for (final (i, playlist) in library.playlists.indexed)
           _LibraryRow(
+            index: i + 2,
             leading: Artwork(
               url: playlist.tracks.firstOrNull?.imageUrl ?? '',
               size: 52,
@@ -230,8 +252,9 @@ class _ArtistsTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        for (final artist in artists)
+        for (final (i, artist) in artists.indexed)
           _LibraryRow(
+            index: i,
             leading: Artwork(
               url: artist.imageUrl,
               size: 52,
@@ -263,8 +286,9 @@ class _AlbumsTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        for (final album in albums)
+        for (final (i, album) in albums.indexed)
           _LibraryRow(
+            index: i,
             leading: Artwork(url: album.imageUrl, size: 52),
             title: album.title,
             subtitle: '${album.artist} · ${album.year}',
@@ -291,10 +315,13 @@ class _LikedTab extends StatelessWidget {
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: 24),
       itemCount: liked.length,
-      itemBuilder: (context, i) => TrackTile(
-        track: liked[i],
-        onTap: () =>
-            context.read<PlayerController>().playTracks(liked, index: i),
+      itemBuilder: (context, i) => Entrance(
+        index: i,
+        child: TrackTile(
+          track: liked[i],
+          onTap: () =>
+              context.read<PlayerController>().playTracks(liked, index: i),
+        ),
       ),
     );
   }
@@ -307,8 +334,11 @@ class _LibraryRow extends StatelessWidget {
     required this.onTap,
     this.subtitle,
     this.onMore,
+    this.index = 0,
   });
 
+  /// Position in the list, for the staggered entrance.
+  final int index;
   final Widget leading;
   final String title;
   final String? subtitle;
@@ -318,40 +348,53 @@ class _LibraryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    return InkWell(
-      onTap: onTap,
-      onLongPress: onMore,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-        child: Row(
-          children: [
-            leading,
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppText.ui(14, weight: FontWeight.w500, color: p.fg),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 3),
+    return Entrance(
+      index: index,
+      child: Pressable(
+        onTap: onTap,
+        onLongPress: onMore,
+        scale: 0.97,
+        tilt: 0.05,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          child: Row(
+            children: [
+              leading,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      subtitle!,
+                      title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppText.ui(11.5, color: p.muted),
+                      style: AppText.ui(
+                        14,
+                        weight: FontWeight.w500,
+                        color: p.fg,
+                      ),
                     ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppText.ui(11.5, color: p.muted),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-            if (onMore != null)
-              IconBtn(Icons.more_horiz_rounded, tooltip: 'More', onTap: onMore),
-          ],
+              if (onMore != null)
+                IconBtn(
+                  Icons.more_horiz_rounded,
+                  tooltip: 'More',
+                  onTap: onMore,
+                ),
+            ],
+          ),
         ),
       ),
     );

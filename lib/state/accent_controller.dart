@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -17,7 +18,11 @@ import 'player_controller.dart';
 ///   enough for ink text/icons on top.
 /// * [deep] — a very dark shade of the same hue, used as the background of
 ///   Now Playing, the queue and the mini player.
-typedef SongColors = ({Color accent, Color deep});
+/// * [glow] — a second vivid color (the cover's next strongest hue, or a
+///   neighbour of [accent]) for gradients and the animated mood backdrop.
+/// * [energy] — 0..1 guess at the cover's mood: warm, saturated covers are
+///   "energetic" and make the backdrop and waveform move faster.
+typedef SongColors = ({Color accent, Color deep, Color glow, double energy});
 
 /// Picks [SongColors] for every song from its album art. Covers with no
 /// real color (black & white photos) get a pair from [_neonPalette], chosen by
@@ -31,6 +36,8 @@ class AccentController extends ChangeNotifier {
   static const SongColors defaults = (
     accent: AppColors.lime,
     deep: AppColors.inkSurface,
+    glow: Color(0xFF3DF2E0),
+    energy: 0.5,
   );
 
   final PlayerController _player;
@@ -81,19 +88,29 @@ class AccentController extends ChangeNotifier {
       final pixels = await _samplePixels(
         track.imageUrl.replaceFirst('500x500', '150x150'),
       );
-      final seed = await _dominantColor(pixels);
-      return seed == null ? fallback : _pairFromSeed(seed);
+      // Color quantizing takes a few ms — off the UI thread, so the song
+      // change animations never stutter.
+      final seeds = await _dominantColorsInBackground(pixels);
+      return seeds == null
+          ? fallback
+          : _pairFromSeed(seeds.$1, second: seeds.$2);
     } catch (e) {
       debugPrint('Accent extraction failed for ${track.id}: $e');
       return fallback;
     }
   }
 
+  /// [_dominantColors] on a background isolate. Static, so the closure only
+  /// captures [pixels] (not this controller, which can't be sent).
+  static Future<(Hct, Hct?)?> _dominantColorsInBackground(List<int> pixels) =>
+      Isolate.run(() => _dominantColors(pixels));
+
   /// The cover's main *color*: groups colorful pixels by hue and picks the
   /// hue family covering the most of the cover (slightly favoring vivid
-  /// ones). Greys, blacks, whites and most skin tones are ignored. Returns
-  /// null for colorless covers.
-  static Future<Hct?> _dominantColor(List<int> pixels) async {
+  /// ones). Greys, blacks, whites and most skin tones are ignored. Also
+  /// returns the strongest clearly different hue, if any. Returns null for
+  /// colorless covers.
+  static Future<(Hct, Hct?)?> _dominantColors(List<int> pixels) async {
     if (pixels.isEmpty) return null;
     final quantized = await QuantizerCelebi().quantize(pixels, 48);
 
@@ -122,26 +139,51 @@ class AccentController extends ChangeNotifier {
     for (var b = 1; b < buckets; b++) {
       if (weight[b] > weight[top]) top = b;
     }
-    return best[top];
+
+    // Second hue: at least 45° away and a meaningful part of the cover.
+    int? second;
+    for (var b = 0; b < buckets; b++) {
+      final distance = min((b - top).abs(), buckets - (b - top).abs());
+      if (distance < 3 || weight[b] < weight[top] * 0.18) continue;
+      if (second == null || weight[b] > weight[second]) second = b;
+    }
+    return (best[top]!, second == null ? null : best[second]);
   }
 
-  /// Turns a cover color into a vivid accent + deep background of one hue.
-  static SongColors _pairFromSeed(Hct seed) {
+  /// Turns a cover color into a vivid accent + deep background of one hue,
+  /// plus a glow color from [second] (or a neighbouring hue).
+  static SongColors _pairFromSeed(Hct seed, {Hct? second}) {
     final hue = seed.hue;
-    // Yellows/greens only look vivid when very light; other hues get
-    // richer a little darker. Chroma is clamped to the sRGB gamut by Hct.
-    final isYellowGreen = hue >= 75 && hue <= 150;
-    final accent = Hct.from(
-      hue,
-      max(seed.chroma * 1.5, 70),
-      isYellowGreen ? 86 : 74,
-    );
+    final accent = _vivid(hue, seed.chroma);
     final deep = Hct.from(
       hue,
       (seed.chroma * 0.5).clamp(16, 30).toDouble(),
       12,
     );
-    return (accent: Color(accent.toInt()), deep: Color(deep.toInt()));
+    final glow = second != null
+        ? _vivid(second.hue, second.chroma)
+        : _vivid((hue + 42) % 360, seed.chroma);
+
+    // Reds/oranges/magentas feel energetic, blues/greens calm.
+    final warmth = (cos((hue - 30) * pi / 180) + 1) / 2;
+    final energy = (0.2 + min(seed.chroma, 100) / 100 * 0.45 + warmth * 0.35)
+        .clamp(0.0, 1.0)
+        .toDouble();
+
+    return (
+      accent: Color(accent.toInt()),
+      deep: Color(deep.toInt()),
+      glow: Color(glow.toInt()),
+      energy: energy,
+    );
+  }
+
+  /// Bright tone of [hue], light enough for ink text on top. Yellows/greens
+  /// only look vivid when very light; other hues get richer a little darker.
+  /// Chroma is clamped to the sRGB gamut by Hct.
+  static Hct _vivid(double hue, double chroma) {
+    final isYellowGreen = hue >= 75 && hue <= 150;
+    return Hct.from(hue, max(chroma * 1.5, 70), isYellowGreen ? 86 : 74);
   }
 
   /// Decodes the (already cached) artwork at 48×48 and returns ARGB pixels.

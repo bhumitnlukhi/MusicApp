@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +11,7 @@ import '../../state/library_controller.dart';
 import '../../state/player_controller.dart';
 import '../widgets/common.dart';
 import '../widgets/mini_player.dart';
+import '../widgets/motion.dart';
 import '../widgets/track_tile.dart';
 import 'library_screen.dart';
 
@@ -153,14 +156,32 @@ class CollectionScreen extends StatelessWidget {
   }
 }
 
-class _CollectionBody extends StatelessWidget {
+class _CollectionBody extends StatefulWidget {
   const _CollectionBody({required this.data, required this.showBack});
 
   final _CollectionData data;
   final bool showBack;
 
   @override
+  State<_CollectionBody> createState() => _CollectionBodyState();
+}
+
+class _CollectionBodyState extends State<_CollectionBody> {
+  final _scroll = ScrollController();
+
+  /// Scroll offset (negative while overscrolling at the top).
+  double get _offset => _scroll.hasClients ? _scroll.offset : 0;
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final data = widget.data;
+    final showBack = widget.showBack;
     final p = context.palette;
     final player = context.watch<PlayerController>();
     final library = context.watch<LibraryController>();
@@ -173,139 +194,235 @@ class _CollectionBody extends StatelessWidget {
         tracks.any((t) => t.id == current.id) &&
         player.isPlaying;
 
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Row(
-            children: [
-              const SizedBox(width: 4),
-              if (showBack)
-                IconBtn(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 18,
-                  tooltip: 'Back',
-                  onTap: () => Navigator.pop(context),
-                )
-              else
-                const SizedBox(height: 40),
-              const Spacer(),
-              if (data.album != null)
-                IconBtn(
-                  library.isAlbumSaved(data.album!.id)
-                      ? Icons.favorite_rounded
-                      : Icons.favorite_border_rounded,
-                  tooltip: 'Save album',
-                  onTap: () => library.toggleSaveAlbum(data.album!),
-                ),
-              if (data.playlist != null)
-                IconBtn(
-                  Icons.more_horiz_rounded,
-                  tooltip: 'Playlist options',
-                  onTap: () => showPlaylistMenu(context, data.playlist!),
-                ),
-              if (tracks.isNotEmpty)
-                IconBtn(
-                  Icons.shuffle_rounded,
-                  tooltip: 'Shuffle play',
-                  onTap: () => player.shufflePlay(tracks),
-                ),
-              const SizedBox(width: 8),
-            ],
+    return Stack(
+      children: [
+        // The cover's colors washed across the top, fading as you scroll.
+        if (data.coverUrl.isNotEmpty)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 420,
+            child: AnimatedBuilder(
+              animation: _scroll,
+              builder: (context, child) => Opacity(
+                opacity: (1 - _offset / 360).clamp(0.0, 1.0),
+                child: child,
+              ),
+              child: _CoverWash(url: data.coverUrl),
+            ),
           ),
-        ),
-        SliverToBoxAdapter(
-          child: Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 4),
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.18),
-                    blurRadius: 24,
-                    offset: const Offset(0, 10),
-                  ),
+        CustomScrollView(
+          controller: _scroll,
+          slivers: [
+            SliverToBoxAdapter(
+              child: Row(
+                children: [
+                  const SizedBox(width: 4),
+                  if (showBack)
+                    IconBtn(
+                      Icons.arrow_back_ios_new_rounded,
+                      size: 18,
+                      tooltip: 'Back',
+                      onTap: () => Navigator.pop(context),
+                    )
+                  else
+                    const SizedBox(height: 40),
+                  const Spacer(),
+                  if (data.album != null)
+                    IconBtn(
+                      library.isAlbumSaved(data.album!.id)
+                          ? Icons.favorite_rounded
+                          : Icons.favorite_border_rounded,
+                      tooltip: 'Save album',
+                      onTap: () => library.toggleSaveAlbum(data.album!),
+                    ),
+                  if (data.playlist != null)
+                    IconBtn(
+                      Icons.more_horiz_rounded,
+                      tooltip: 'Playlist options',
+                      onTap: () => showPlaylistMenu(context, data.playlist!),
+                    ),
+                  if (tracks.isNotEmpty)
+                    IconBtn(
+                      Icons.shuffle_rounded,
+                      tooltip: 'Shuffle play',
+                      onTap: () => player.shufflePlay(tracks),
+                    ),
+                  const SizedBox(width: 8),
                 ],
               ),
-              child: Artwork(
-                url: data.coverUrl,
-                size: 200,
-                radius: 4,
-                icon: data.playlist != null || data.album == null
-                    ? Icons.queue_music_rounded
-                    : Icons.album_rounded,
+            ),
+            SliverToBoxAdapter(
+              child: Center(
+                child: AnimatedBuilder(
+                  animation: _scroll,
+                  builder: (context, child) {
+                    // Scrolling up tips the cover back in 3D and fades it;
+                    // pulling down past the top grows it.
+                    final o = _offset;
+                    final progress = (o / 280).clamp(0.0, 1.0);
+                    final stretch = 1 + math.max(0.0, -o) / 500;
+                    final s = stretch * (1 - progress * 0.25);
+                    return Opacity(
+                      opacity: 1 - progress * 0.8,
+                      child: Transform(
+                        alignment: Alignment.bottomCenter,
+                        transform: Motion.perspective()
+                          ..translateByDouble(0, math.max(0.0, o) * 0.45, 0, 1)
+                          ..rotateX(-progress * 0.9)
+                          ..scaleByDouble(s, s, 1, 1),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: Entrance(
+                    offset: 40,
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.28),
+                            blurRadius: 32,
+                            spreadRadius: -4,
+                            offset: const Offset(0, 18),
+                          ),
+                        ],
+                      ),
+                      child: Artwork(
+                        url: data.coverUrl,
+                        size: 220,
+                        radius: 12,
+                        icon: data.playlist != null || data.album == null
+                            ? Icons.queue_music_rounded
+                            : Icons.album_rounded,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            data.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppText.ui(
+                              24,
+                              weight: FontWeight.w800,
+                              color: p.fg,
+                              letterSpacing: -0.4,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            data.subtitle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppText.ui(12, color: p.muted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (tracks.isNotEmpty)
+                      RoundPlayButton(
+                        size: 54,
+                        playing: isThisPlaying,
+                        onTap: () {
+                          if (current != null &&
+                              tracks.any((t) => t.id == current.id)) {
+                            player.togglePlay();
+                          } else {
+                            player.playTracks(tracks);
+                          }
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            if (tracks.isEmpty)
+              const SliverToBoxAdapter(
+                child: MessageView(
+                  icon: Icons.music_note_rounded,
+                  title: 'No songs yet',
+                  subtitle: 'Use "Add to playlist" from any song\'s menu.',
+                ),
+              )
+            else
+              SliverList.builder(
+                itemCount: tracks.length,
+                itemBuilder: (context, i) {
+                  final t = tracks[i];
+                  return Entrance(
+                    index: i,
+                    child: TrackTile(
+                      track: t,
+                      number: '${i + 1}',
+                      showArtwork: !data.isAlbum,
+                      subtitle: data.isAlbum
+                          ? formatDuration(t.duration)
+                          : null,
+                      onTap: () => player.playTracks(tracks, index: i),
+                      onRemove: data.playlist == null
+                          ? null
+                          : () => library.removeFromPlaylist(
+                              data.playlist!.id,
+                              t.id,
+                            ),
+                    ),
+                  );
+                },
+              ),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Heavily blurred cover fading into the page — gives every album and
+/// playlist its own color mood on the light screen.
+class _CoverWash extends StatelessWidget {
+  const _CoverWash({required this.url});
+
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = context.palette.bg;
+    return RepaintBoundary(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          BlurredArt(url: url, opacity: 0.55),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  bg.withValues(alpha: 0.1),
+                  bg.withValues(alpha: 0.6),
+                  bg,
+                ],
+                stops: const [0, 0.6, 1],
               ),
             ),
           ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        data.title,
-                        style: AppText.ui(
-                          22,
-                          weight: FontWeight.w700,
-                          color: p.fg,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        data.subtitle,
-                        style: AppText.ui(12, color: p.muted),
-                      ),
-                    ],
-                  ),
-                ),
-                if (tracks.isNotEmpty)
-                  RoundPlayButton(
-                    size: 50,
-                    playing: isThisPlaying,
-                    onTap: () {
-                      if (current != null &&
-                          tracks.any((t) => t.id == current.id)) {
-                        player.togglePlay();
-                      } else {
-                        player.playTracks(tracks);
-                      }
-                    },
-                  ),
-              ],
-            ),
-          ),
-        ),
-        if (tracks.isEmpty)
-          const SliverToBoxAdapter(
-            child: MessageView(
-              icon: Icons.music_note_rounded,
-              title: 'No songs yet',
-              subtitle: 'Use "Add to playlist" from any song\'s menu.',
-            ),
-          )
-        else
-          SliverList.builder(
-            itemCount: tracks.length,
-            itemBuilder: (context, i) {
-              final t = tracks[i];
-              return TrackTile(
-                track: t,
-                number: '${i + 1}',
-                showArtwork: !data.isAlbum,
-                subtitle: data.isAlbum ? formatDuration(t.duration) : null,
-                onTap: () => player.playTracks(tracks, index: i),
-                onRemove: data.playlist == null
-                    ? null
-                    : () => library.removeFromPlaylist(data.playlist!.id, t.id),
-              );
-            },
-          ),
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../state/accent_controller.dart';
+import '../../ui/widgets/motion.dart';
 
 /// Brand colors from the design: near-black "ink", warm off-white "paper",
 /// and a single neon-lime accent.
@@ -34,6 +35,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.isDark,
     this.accent = AppColors.lime,
     this.accentDeep = AppColors.inkSurface,
+    this.glow = const Color(0xFF3DF2E0),
+    this.energy = 0.5,
   });
 
   final Color bg;
@@ -49,6 +52,12 @@ class AppPalette extends ThemeExtension<AppPalette> {
 
   /// Very dark shade of the accent's hue — background for the player screens.
   final Color accentDeep;
+
+  /// Second vivid color of the song, for gradients and mood backdrops.
+  final Color glow;
+
+  /// 0..1 mood of the song's cover (calm → energetic). Scales motion speed.
+  final double energy;
 
   /// Accent used for text/icons: a bright accent reads on ink but not on
   /// paper, so light screens fall back to ink.
@@ -82,6 +91,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     bool? isDark,
     Color? accent,
     Color? accentDeep,
+    Color? glow,
+    double? energy,
   }) => AppPalette(
     bg: bg ?? this.bg,
     fg: fg ?? this.fg,
@@ -91,6 +102,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     isDark: isDark ?? this.isDark,
     accent: accent ?? this.accent,
     accentDeep: accentDeep ?? this.accentDeep,
+    glow: glow ?? this.glow,
+    energy: energy ?? this.energy,
   );
 
   @override
@@ -105,6 +118,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       isDark: t < 0.5 ? isDark : other.isDark,
       accent: Color.lerp(accent, other.accent, t)!,
       accentDeep: Color.lerp(accentDeep, other.accentDeep, t)!,
+      glow: Color.lerp(glow, other.glow, t)!,
+      energy: energy + (other.energy - energy) * t,
     );
   }
 }
@@ -170,6 +185,8 @@ class AppTheme {
         (dark ? AppPalette.dark : AppPalette.light).copyWith(
           accent: colors.accent,
           accentDeep: colors.deep,
+          glow: colors.glow,
+          energy: colors.energy,
         ),
       ),
     );
@@ -178,8 +195,9 @@ class AppTheme {
   static ThemeData _build(AppPalette p) {
     final brightness = p.isDark ? Brightness.dark : Brightness.light;
     final base = ThemeData(brightness: brightness, useMaterial3: true);
-    final text = GoogleFonts.interTextTheme(base.textTheme)
-        .apply(bodyColor: p.fg, displayColor: p.fg);
+    final text = GoogleFonts.interTextTheme(
+      base.textTheme,
+    ).apply(bodyColor: p.fg, displayColor: p.fg);
 
     return base.copyWith(
       scaffoldBackgroundColor: p.bg,
@@ -202,6 +220,13 @@ class AppTheme {
       iconTheme: IconThemeData(color: p.fg, size: 22),
       dividerTheme: DividerThemeData(color: p.border, thickness: 1, space: 1),
       splashFactory: NoSplash.splashFactory,
+      // 3D depth transition for every pushed screen, on every platform.
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          for (final platform in TargetPlatform.values)
+            platform: const DepthPageTransitionsBuilder(),
+        },
+      ),
       highlightColor: p.fg.withValues(alpha: 0.04),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: p.fg,
@@ -275,8 +300,8 @@ class ThemedScreen extends StatelessWidget {
     );
     return AnimatedTheme(
       data: AppTheme.of(dark: dark, colors: colors),
-      duration: const Duration(milliseconds: 600),
-      curve: Curves.easeOut,
+      duration: const Duration(milliseconds: 900),
+      curve: Curves.easeInOutCubic,
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: (dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark)
             .copyWith(

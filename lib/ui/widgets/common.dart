@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
+import 'motion.dart';
 
 /// Cover art / artist photo with a flat placeholder while loading.
 class Artwork extends StatelessWidget {
@@ -69,15 +70,24 @@ class ScreenLabel extends StatelessWidget {
 
 /// Huge condensed uppercase headline ("DISCOVER", "YOUR LIBRARY").
 class DisplayTitle extends StatelessWidget {
-  const DisplayTitle(this.text, {super.key, this.size = 48, this.color});
+  const DisplayTitle(
+    this.text, {
+    super.key,
+    this.size = 48,
+    this.color,
+    this.maxLines,
+  });
 
   final String text;
   final double size;
   final Color? color;
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) => Text(
     text.toUpperCase(),
+    maxLines: maxLines,
+    overflow: maxLines == null ? null : TextOverflow.ellipsis,
     style: AppText.display(size, color: color ?? context.palette.fg),
   );
 }
@@ -109,7 +119,7 @@ class ScreenHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          DisplayTitle(title),
+          Entrance(offset: 18, child: DisplayTitle(title, maxLines: 2)),
         ],
       ),
     );
@@ -136,9 +146,9 @@ class SectionHeader extends StatelessWidget {
             ),
           ),
           if (onSeeAll != null)
-            GestureDetector(
+            Pressable(
               onTap: onSeeAll,
-              behavior: HitTestBehavior.opaque,
+              tilt: 0,
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: Text(
@@ -170,31 +180,52 @@ class PillTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     return SizedBox(
-      height: 30,
+      height: 40,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+        clipBehavior: Clip.none,
         itemCount: tabs.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 4),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final isSelected = i == selected;
-          return GestureDetector(
+          final fill = p.isDark ? p.accent : AppColors.ink;
+          return Pressable(
             onTap: () => onChanged(i),
+            scale: 0.9,
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              duration: const Duration(milliseconds: 380),
+              curve: Curves.easeOutCubic,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: isSelected ? p.accent : Colors.transparent,
-                borderRadius: BorderRadius.circular(5),
+                color: isSelected ? fill : p.fg.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isSelected
+                      ? Colors.transparent
+                      : p.fg.withValues(alpha: 0.08),
+                ),
+                boxShadow: [
+                  if (isSelected && p.isDark)
+                    BoxShadow(
+                      color: p.accent.withValues(alpha: 0.35),
+                      blurRadius: 14,
+                      spreadRadius: -4,
+                      offset: const Offset(0, 4),
+                    ),
+                ],
               ),
-              child: Text(
-                tabs[i],
+              child: AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 380),
                 style: AppText.ui(
                   12,
-                  weight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? AppColors.ink : p.fg,
+                  weight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected
+                      ? (p.isDark ? AppColors.ink : AppColors.paper)
+                      : p.fg,
                 ),
+                child: Text(tabs[i]),
               ),
             ),
           );
@@ -228,19 +259,42 @@ class RoundPlayButton extends StatelessWidget {
       PlayButtonStyle.ink => (AppColors.ink, AppColors.paper),
       PlayButtonStyle.paper => (AppColors.paper, AppColors.ink),
     };
+    final p = context.palette;
     return Semantics(
       button: true,
       label: playing ? 'Pause' : 'Play',
-      child: GestureDetector(
+      child: Pressable(
         onTap: onTap,
-        child: Container(
+        scale: 0.88,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOutCubic,
           width: size,
           height: size,
-          decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-          child: Icon(
-            playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-            color: fg,
-            size: size * 0.55,
+          decoration: BoxDecoration(
+            color: bg,
+            shape: BoxShape.circle,
+            gradient: style == PlayButtonStyle.lime
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [p.accent, Color.lerp(p.accent, p.glow, 0.6)!],
+                  )
+                : null,
+            boxShadow: [
+              BoxShadow(
+                color: (style == PlayButtonStyle.ink ? Colors.black : p.accent)
+                    .withValues(
+                      alpha: style == PlayButtonStyle.paper ? 0 : 0.3,
+                    ),
+                blurRadius: 18,
+                spreadRadius: -4,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Center(
+            child: PlayPauseIcon(playing: playing, color: fg, size: size * 0.5),
           ),
         ),
       ),
@@ -315,42 +369,53 @@ class MessageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 36, color: p.muted),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: AppText.ui(15, weight: FontWeight.w600, color: p.fg),
-          ),
-          if (subtitle != null) ...[
-            const SizedBox(height: 4),
+    final content = Entrance(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 36, color: p.muted),
+            const SizedBox(height: 12),
             Text(
-              subtitle!,
+              title,
               textAlign: TextAlign.center,
-              style: AppText.ui(13, color: p.muted),
+              style: AppText.ui(15, weight: FontWeight.w600, color: p.fg),
             ),
-          ],
-          if (actionLabel != null) ...[
-            const SizedBox(height: 16),
-            OutlinedButton(
-              onPressed: onAction,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: p.fg,
-                side: BorderSide(color: p.border),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                subtitle!,
+                textAlign: TextAlign.center,
+                style: AppText.ui(13, color: p.muted),
               ),
-              child: Text(actionLabel!),
-            ),
+            ],
+            if (actionLabel != null) ...[
+              const SizedBox(height: 16),
+              OutlinedButton(
+                onPressed: onAction,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: p.fg,
+                  side: BorderSide(color: p.border),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                child: Text(actionLabel!),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
+    );
+    // In a box of fixed height (an empty tab, a short screen), scroll
+    // instead of overflowing.
+    return LayoutBuilder(
+      builder: (context, constraints) => constraints.hasBoundedHeight
+          ? SingleChildScrollView(
+              child: SizedBox(width: constraints.maxWidth, child: content),
+            )
+          : content,
     );
   }
 }
@@ -417,14 +482,3 @@ void showSnack(BuildContext context, String message) {
       SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
 }
-
-/// Background for the player screens (Now Playing, Queue): the song's deep
-/// color with a hint of its accent at the top, fading to ink at the bottom.
-BoxDecoration songBackdrop(AppPalette p) => BoxDecoration(
-  gradient: LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color.lerp(p.accentDeep, p.accent, 0.12)!, p.accentDeep, p.bg],
-    stops: const [0, 0.55, 1],
-  ),
-);

@@ -17,26 +17,31 @@ class Catalog {
     Mix(
       id: 'midnight',
       title: 'Midnight',
+      subtitle: 'After-dark drives &\nslow-burn R&B',
       queries: ['late night drive', 'the weeknd', 'anuv jain'],
     ),
     Mix(
       id: 'focus',
       title: 'Focus Mode',
+      subtitle: 'Lo-fi beats to lock in\nand get things done',
       queries: ['lofi focus', 'lofi study'],
     ),
     Mix(
       id: 'chill',
       title: 'Chill Mix',
+      subtitle: 'Easy acoustic grooves\nfor slow mornings',
       queries: ['weekend chill', 'acoustic chill', 'coldplay'],
     ),
     Mix(
       id: 'workout',
       title: 'Workout',
+      subtitle: 'High-energy anthems\nto push harder',
       queries: ['imagine dragons', 'eminem', 'party hits'],
     ),
     Mix(
       id: 'romance',
       title: 'Romance',
+      subtitle: 'Love songs for\nevery heartbeat',
       queries: ['hindi romantic', 'arijit singh', 'bollywood hits'],
     ),
   ];

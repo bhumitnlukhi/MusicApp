@@ -7,6 +7,7 @@ import '../../state/library_controller.dart';
 import '../../state/player_controller.dart';
 import '../navigation.dart';
 import 'common.dart';
+import 'motion.dart';
 
 /// A song row: optional number, artwork, title/subtitle and a "…" menu.
 class TrackTile extends StatelessWidget {
@@ -43,42 +44,97 @@ class TrackTile extends StatelessWidget {
     final isCurrent = context.select<PlayerController, bool>(
       (c) => c.current?.id == track.id,
     );
+    final playing = context.select<PlayerController, bool>(
+      (c) => c.isPlaying && c.current?.id == track.id,
+    );
     final titleColor = isCurrent ? p.accentText : p.fg;
+    final highlight = p.isDark
+        ? p.accent.withValues(alpha: 0.1)
+        : AppColors.ink.withValues(alpha: 0.05);
 
-    return InkWell(
+    return Pressable(
       onTap: onTap,
       onLongPress: () => showTrackActions(context, track, onRemove: onRemove),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      scale: 0.98,
+      tilt: 0.04,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 420),
+        curve: Curves.easeOutCubic,
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+        padding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
+        decoration: BoxDecoration(
+          color: isCurrent ? highlight : highlight.withValues(alpha: 0),
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Row(
           children: [
             if (number != null)
               SizedBox(
                 width: 28,
                 child: isCurrent
-                    ? Icon(
-                        Icons.graphic_eq_rounded,
-                        size: 16,
-                        color: p.accentText,
+                    ? Align(
+                        alignment: Alignment.centerLeft,
+                        child: EqualizerBars(
+                          playing: playing,
+                          size: 14,
+                          color: p.accentText,
+                        ),
                       )
-                    : Text(number!, style: AppText.ui(12, color: p.fg)),
+                    : Text(
+                        number!,
+                        style: AppText.ui(
+                          12,
+                          color: p.muted,
+                          weight: FontWeight.w500,
+                        ),
+                      ),
               ),
             if (showArtwork) ...[
-              Artwork(url: track.imageUrl, size: 44, radius: 3),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Artwork(url: track.imageUrl, size: 46, radius: 8),
+                  // Playing indicator over the cover when there's no number.
+                  if (number == null)
+                    AnimatedOpacity(
+                      opacity: isCurrent ? 1 : 0,
+                      duration: Motion.medium,
+                      child: Container(
+                        width: 46,
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.45),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        alignment: Alignment.center,
+                        child: isCurrent
+                            ? EqualizerBars(
+                                playing: playing,
+                                size: 16,
+                                color: p.isDark ? p.accent : AppColors.paper,
+                              )
+                            : null,
+                      ),
+                    ),
+                ],
+              ),
               const SizedBox(width: 12),
             ],
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    track.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  AnimatedDefaultTextStyle(
+                    duration: Motion.medium,
                     style: AppText.ui(
                       14,
-                      weight: FontWeight.w500,
+                      weight: isCurrent ? FontWeight.w700 : FontWeight.w500,
                       color: titleColor,
+                    ),
+                    child: Text(
+                      track.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -95,6 +151,7 @@ class TrackTile extends StatelessWidget {
                 IconBtn(
                   Icons.more_horiz_rounded,
                   tooltip: 'More',
+                  color: p.muted,
                   onTap: () =>
                       showTrackActions(context, track, onRemove: onRemove),
                 ),

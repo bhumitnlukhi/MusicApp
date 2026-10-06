@@ -6,26 +6,16 @@ import 'screens/collection_screen.dart';
 import 'screens/lyrics_screen.dart';
 import 'screens/now_playing_screen.dart';
 import 'screens/queue_screen.dart';
+import 'widgets/motion.dart';
 
 /// One place for all screen-to-screen navigation.
 extension AppNavigation on BuildContext {
   Future<void> _push(Widget screen) =>
       Navigator.of(this).push(MaterialPageRoute<void>(builder: (_) => screen));
 
-  /// Full-screen player sheets slide up from the bottom.
-  Future<void> _pushUp(Widget screen) => Navigator.of(this).push(
-    PageRouteBuilder<void>(
-      transitionDuration: const Duration(milliseconds: 320),
-      reverseTransitionDuration: const Duration(milliseconds: 260),
-      pageBuilder: (_, _, _) => screen,
-      transitionsBuilder: (_, animation, _, child) => SlideTransition(
-        position: Tween(begin: const Offset(0, 1), end: Offset.zero).animate(
-          CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
-        ),
-        child: child,
-      ),
-    ),
-  );
+  /// Full-screen player sheets rise from the bottom in 3D.
+  Future<void> _pushUp(Widget screen) =>
+      Navigator.of(this).push(SheetPageRoute<void>(builder: (_) => screen));
 
   Future<void> openArtist(String artistId) =>
       _push(ArtistScreen(artistId: artistId));

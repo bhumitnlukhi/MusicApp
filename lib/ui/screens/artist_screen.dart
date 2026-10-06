@@ -9,6 +9,7 @@ import '../../state/player_controller.dart';
 import '../navigation.dart';
 import '../widgets/common.dart';
 import '../widgets/mini_player.dart';
+import '../widgets/motion.dart';
 import '../widgets/track_tile.dart';
 
 /// Artist page (dark): big photo header, follow/play, popular songs, albums.
@@ -46,6 +47,16 @@ class _ArtistBodyState extends State<_ArtistBody> {
   static const _tabs = ['Music', 'About'];
   int _tab = 0;
   bool _showAllSongs = false;
+  final _scroll = ScrollController();
+
+  /// Scroll offset (negative while overscrolling at the top).
+  double get _offset => _scroll.hasClients ? _scroll.offset : 0;
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +76,7 @@ class _ArtistBodyState extends State<_ArtistBody> {
         player.isPlaying;
 
     return CustomScrollView(
+      controller: _scroll,
       slivers: [
         // ---- photo header ----
         SliverToBoxAdapter(
@@ -73,12 +85,42 @@ class _ArtistBodyState extends State<_ArtistBody> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                ColorFiltered(
-                  colorFilter: const ColorFilter.matrix(_greyscale),
-                  child: Artwork(
-                    url: artist.summary.imageUrl,
-                    radius: 0,
-                    icon: Icons.person_rounded,
+                // Parallax: the photo scrolls slower than the page and
+                // stretches when pulled down.
+                AnimatedBuilder(
+                  animation: _scroll,
+                  builder: (context, child) {
+                    final o = _offset;
+                    final stretch = 1 + (o < 0 ? -o / 320 : 0.0);
+                    return Transform(
+                      alignment: Alignment.bottomCenter,
+                      transform: Matrix4.identity()
+                        ..translateByDouble(0, o > 0 ? o * 0.5 : 0, 0, 1)
+                        ..scaleByDouble(stretch, stretch, 1, 1),
+                      child: child,
+                    );
+                  },
+                  child: ColorFiltered(
+                    colorFilter: const ColorFilter.matrix(_greyscale),
+                    child: Artwork(
+                      url: artist.summary.imageUrl,
+                      radius: 0,
+                      icon: Icons.person_rounded,
+                    ),
+                  ),
+                ),
+                // Duotone tint in the song's colors.
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 900),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        p.accent.withValues(alpha: 0.22),
+                        p.glow.withValues(alpha: 0.12),
+                      ],
+                    ),
                   ),
                 ),
                 const DecoratedBox(
@@ -114,25 +156,31 @@ class _ArtistBodyState extends State<_ArtistBody> {
                   left: 20,
                   right: 20,
                   bottom: 12,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        artist.summary.name,
-                        style: AppText.ui(
-                          28,
-                          weight: FontWeight.w700,
-                          color: p.fg,
-                        ),
-                      ),
-                      if (artist.followers != null) ...[
-                        const SizedBox(height: 4),
+                  child: Entrance(
+                    offset: 36,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          '${formatCount(artist.followers!)} followers',
-                          style: AppText.ui(12, color: p.muted),
+                          artist.summary.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppText.ui(
+                            32,
+                            weight: FontWeight.w800,
+                            color: p.fg,
+                            letterSpacing: -0.5,
+                          ),
                         ),
+                        if (artist.followers != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            '${formatCount(artist.followers!)} followers',
+                            style: AppText.ui(12, color: p.muted),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -146,23 +194,40 @@ class _ArtistBodyState extends State<_ArtistBody> {
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
             child: Row(
               children: [
-                OutlinedButton(
-                  onPressed: () => library.toggleFollow(artist.summary),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: p.fg,
-                    side: BorderSide(color: following ? p.accent : p.muted),
-                    minimumSize: const Size(0, 34),
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  child: Text(
-                    following ? 'Following' : 'Follow',
-                    style: AppText.ui(
-                      12.5,
-                      weight: FontWeight.w500,
-                      color: following ? p.accent : p.fg,
+                Semantics(
+                  button: true,
+                  child: Pressable(
+                    onTap: () => library.toggleFollow(artist.summary),
+                    scale: 0.92,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 380),
+                      curve: Curves.easeOutCubic,
+                      height: 36,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: following
+                            ? p.accent.withValues(alpha: 0.14)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: following ? p.accent : p.muted,
+                        ),
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: Motion.medium,
+                        transitionBuilder: (child, a) =>
+                            ScaleTransition(scale: a, child: child),
+                        child: Text(
+                          following ? 'Following' : 'Follow',
+                          key: ValueKey(following),
+                          style: AppText.ui(
+                            12.5,
+                            weight: FontWeight.w600,
+                            color: following ? p.accent : p.fg,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -206,7 +271,9 @@ class _ArtistBodyState extends State<_ArtistBody> {
                   for (var i = 0; i < _tabs.length; i++)
                     GestureDetector(
                       onTap: () => setState(() => _tab = i),
-                      child: Container(
+                      child: AnimatedContainer(
+                        duration: Motion.medium,
+                        curve: Curves.easeOutCubic,
                         margin: const EdgeInsets.only(right: 28),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
@@ -249,13 +316,16 @@ class _ArtistBodyState extends State<_ArtistBody> {
               itemCount: shown.length,
               itemBuilder: (context, i) {
                 final t = shown[i];
-                return TrackTile(
-                  track: t,
-                  number: '${i + 1}',
-                  subtitle: t.playCount != null
-                      ? '${formatCount(t.playCount!)} plays'
-                      : t.album,
-                  onTap: () => player.playTracks(topTracks, index: i),
+                return Entrance(
+                  index: i,
+                  child: TrackTile(
+                    track: t,
+                    number: '${i + 1}',
+                    subtitle: t.playCount != null
+                        ? '${formatCount(t.playCount!)} plays'
+                        : t.album,
+                    onTap: () => player.playTracks(topTracks, index: i),
+                  ),
                 );
               },
             ),
@@ -264,22 +334,23 @@ class _ArtistBodyState extends State<_ArtistBody> {
             const SliverToBoxAdapter(child: SectionHeader('Albums')),
             SliverToBoxAdapter(
               child: SizedBox(
-                height: 160,
+                height: 176,
                 child: ListView.separated(
+                  clipBehavior: Clip.none,
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   itemCount: artist.albums.length,
                   separatorBuilder: (_, _) => const SizedBox(width: 12),
                   itemBuilder: (context, i) {
                     final album = artist.albums[i];
-                    return GestureDetector(
+                    return Pressable(
                       onTap: () => context.openAlbum(album.id),
                       child: SizedBox(
-                        width: 112,
+                        width: 120,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Artwork(url: album.imageUrl, size: 112),
+                            Artwork(url: album.imageUrl, size: 120, radius: 10),
                             const SizedBox(height: 6),
                             Text(
                               album.title,
@@ -293,6 +364,7 @@ class _ArtistBodyState extends State<_ArtistBody> {
                             ),
                             Text(
                               album.year,
+                              maxLines: 1,
                               style: AppText.ui(10.5, color: p.muted),
                             ),
                           ],
@@ -358,9 +430,13 @@ class _Fact extends StatelessWidget {
             width: 110,
             child: Text(label, style: AppText.ui(12.5, color: p.muted)),
           ),
-          Text(
-            value,
-            style: AppText.ui(13, weight: FontWeight.w600, color: p.fg),
+          Expanded(
+            child: Text(
+              value,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppText.ui(13, weight: FontWeight.w600, color: p.fg),
+            ),
           ),
         ],
       ),

@@ -57,7 +57,28 @@ class MusicApp extends StatelessWidget {
       title: 'Pulse',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
+      scrollBehavior: const _SmoothScrollBehavior(),
+      // Cap huge accessibility font sizes so fixed-height rows and cards
+      // never overflow, while still honoring the user's setting.
+      builder: (context, child) {
+        final mq = MediaQuery.of(context);
+        return MediaQuery(
+          data: mq.copyWith(
+            textScaler: mq.textScaler.clamp(maxScaleFactor: 1.25),
+          ),
+          child: child!,
+        );
+      },
       home: showOnboarding ? const OnboardingScreen() : const HomeShell(),
     );
   }
+}
+
+/// Springy iOS-style bounce on every scrollable, on every platform.
+class _SmoothScrollBehavior extends MaterialScrollBehavior {
+  const _SmoothScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
 }

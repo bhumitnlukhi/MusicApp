@@ -7,6 +7,7 @@ import '../../data/models.dart';
 import '../../state/library_controller.dart';
 import '../../state/player_controller.dart';
 import '../widgets/common.dart';
+import '../widgets/motion.dart';
 
 /// Lyrics (light, monospace). Synced lyrics highlight and follow the current
 /// line; tap a line to jump there.
@@ -165,6 +166,14 @@ class _LyricsBodyState extends State<_LyricsBody> {
   );
   int _active = -1;
 
+  /// Current line index, emitted only when it changes — so the lyrics list
+  /// rebuilds once per line instead of on every position tick.
+  late final Stream<int> _activeStream = context
+      .read<PlayerController>()
+      .positionStream
+      .map(_activeLine)
+      .distinct();
+
   int _activeLine(Duration position) {
     final lines = widget.lyrics.lines;
     var active = -1;
@@ -211,10 +220,11 @@ class _LyricsBodyState extends State<_LyricsBody> {
       );
     }
 
-    return StreamBuilder<Duration>(
-      stream: player.positionStream,
+    return StreamBuilder<int>(
+      stream: _activeStream,
+      initialData: _activeLine(player.position),
       builder: (context, snap) {
-        final active = _activeLine(snap.data ?? player.position);
+        final active = snap.data ?? -1;
         _follow(active);
         return SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
@@ -225,19 +235,47 @@ class _LyricsBodyState extends State<_LyricsBody> {
                 GestureDetector(
                   key: _keys[i],
                   onTap: () => player.seek(lines[i].time!),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 200),
-                      style: AppText.mono(
-                        13.5,
-                        color: i == active
-                            ? p.fg
-                            : p.muted.withValues(alpha: 0.7),
-                        weight: i == active ? FontWeight.w700 : FontWeight.w400,
+                  behavior: HitTestBehavior.opaque,
+                  // The current line grows and gets an accent bar; past
+                  // lines fade more than upcoming ones.
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 420),
+                    curve: Curves.easeOutCubic,
+                    margin: const EdgeInsets.symmetric(vertical: 2),
+                    padding: EdgeInsets.only(left: i == active ? 12 : 0),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        left: BorderSide(
+                          color: i == active
+                              ? AppColors.ink
+                              : Colors.transparent,
+                          width: 3,
+                        ),
                       ),
-                      // Empty LRC lines are instrumental breaks.
-                      child: Text(lines[i].text.isEmpty ? '♪' : lines[i].text),
+                    ),
+                    child: AnimatedScale(
+                      scale: i == active ? 1.06 : 1,
+                      alignment: Alignment.centerLeft,
+                      duration: const Duration(milliseconds: 420),
+                      curve: Curves.easeOutBack,
+                      child: AnimatedDefaultTextStyle(
+                        duration: Motion.medium,
+                        style: AppText.mono(
+                          13.5,
+                          color: i == active
+                              ? p.fg
+                              : p.muted.withValues(
+                                  alpha: i < active ? 0.45 : 0.75,
+                                ),
+                          weight: i == active
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                        ),
+                        // Empty LRC lines are instrumental breaks.
+                        child: Text(
+                          lines[i].text.isEmpty ? '♪' : lines[i].text,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -260,57 +298,61 @@ class _BottomControls extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
       child: Column(
         children: [
-          StreamBuilder<Duration>(
-            stream: player.positionStream,
-            builder: (context, snap) {
-              final pos = snap.data ?? player.position;
-              final total = player.duration;
-              final max = total.inMilliseconds.toDouble();
-              return Column(
-                children: [
-                  SliderTheme(
-                    data: SliderThemeData(
-                      trackHeight: 3,
-                      activeTrackColor: p.accent,
-                      inactiveTrackColor: p.border,
-                      thumbColor: p.accent,
-                      overlayShape: SliderComponentShape.noOverlay,
-                      thumbShape: const RoundSliderThumbShape(
-                        enabledThumbRadius: 5,
+          // Own layer: the slider's ticks don't repaint the lyrics.
+          RepaintBoundary(
+            child: StreamBuilder<Duration>(
+              stream: player.positionStream,
+              builder: (context, snap) {
+                final pos = snap.data ?? player.position;
+                final total = player.duration;
+                final max = total.inMilliseconds.toDouble();
+                return Column(
+                  children: [
+                    SliderTheme(
+                      data: SliderThemeData(
+                        trackHeight: 3,
+                        activeTrackColor: p.accent,
+                        inactiveTrackColor: p.border,
+                        thumbColor: p.accent,
+                        overlayShape: SliderComponentShape.noOverlay,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 5,
+                        ),
+                      ),
+                      child: Slider(
+                        value: max == 0
+                            ? 0
+                            : pos.inMilliseconds.clamp(0, max).toDouble(),
+                        max: max == 0 ? 1 : max,
+                        onChanged: max == 0
+                            ? null
+                            : (v) => player.seek(
+                                Duration(milliseconds: v.round()),
+                              ),
                       ),
                     ),
-                    child: Slider(
-                      value: max == 0
-                          ? 0
-                          : pos.inMilliseconds.clamp(0, max).toDouble(),
-                      max: max == 0 ? 1 : max,
-                      onChanged: max == 0
-                          ? null
-                          : (v) =>
-                                player.seek(Duration(milliseconds: v.round())),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Text(
+                          formatDuration(pos),
+                          style: AppText.ui(11, color: p.muted),
+                        ),
+                        const Spacer(),
+                        Text(
+                          formatDuration(total),
+                          style: AppText.ui(11, color: p.muted),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Text(
-                        formatDuration(pos),
-                        style: AppText.ui(11, color: p.muted),
-                      ),
-                      const Spacer(),
-                      Text(
-                        formatDuration(total),
-                        style: AppText.ui(11, color: p.muted),
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            },
+                  ],
+                );
+              },
+            ),
           ),
           const SizedBox(height: 8),
           RoundPlayButton(
-            size: 52,
+            size: 56,
             playing: player.isPlaying,
             onTap: player.togglePlay,
           ),
