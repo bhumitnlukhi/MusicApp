@@ -104,7 +104,7 @@ class QueueScreen extends StatelessWidget {
                                   buildDefaultDragHandles: false,
                                   padding: const EdgeInsets.only(bottom: 16),
                                   itemCount: upNext.length,
-                                  onReorder: (from, to) => player.move(
+                                  onReorderItem: (from, to) => player.move(
                                     currentIndex + 1 + from,
                                     currentIndex + 1 + to,
                                   ),

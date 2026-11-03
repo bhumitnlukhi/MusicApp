@@ -83,7 +83,7 @@ class AccentController extends ChangeNotifier {
     );
     if (track.imageUrl.isEmpty) return fallback;
     try {
-      // JioSaavn serves each cover in several sizes; the small one is plenty
+      // Server provides each cover in several sizes; the small one is plenty
       // for picking colors and downloads much faster.
       final pixels = await _samplePixels(
         track.imageUrl.replaceFirst('500x500', '150x150'),

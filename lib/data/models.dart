@@ -1,5 +1,5 @@
 /// Plain app models. The UI only ever sees these — never the raw API types —
-/// so the data source can be swapped (JioSaavn, Jamendo, Audius…) without
+/// so the data source can be swapped (Cloud, Local, Stream) without
 /// touching any screen.
 library;
 
@@ -139,8 +139,7 @@ class AlbumDetails {
 }
 
 /// A curated playlist built from a few search queries whose results are
-/// interleaved. JioSaavn's playlist endpoint isn't exposed by the package,
-/// and its search mostly matches song titles, so artist names work best.
+/// interleaved. Mix search mostly matches song titles and artist names.
 class Mix {
   const Mix({
     required this.id,

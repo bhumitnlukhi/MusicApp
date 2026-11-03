@@ -3,7 +3,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
-import 'data/jiosaavn_repository.dart';
+import 'data/cloud_media_repository.dart';
 import 'data/lyrics_repository.dart';
 import 'data/music_repository.dart';
 import 'state/accent_controller.dart';
@@ -27,9 +27,9 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
-        // Swap JioSaavnRepository for another MusicRepository to change the
+        // Swap CloudMediaRepository for another MusicRepository to change the
         // music source — no UI changes needed.
-        Provider<MusicRepository>(create: (_) => JioSaavnRepository()),
+        Provider<MusicRepository>(create: (_) => CloudMediaRepository()),
         Provider<LyricsRepository>(create: (_) => LyricsRepository()),
         ChangeNotifierProvider.value(value: library),
         ChangeNotifierProvider(

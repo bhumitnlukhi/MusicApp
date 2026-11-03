@@ -30,7 +30,7 @@ class Motion {
       MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 }
 
-/// Small version of a JioSaavn cover — plenty for blurred backdrops.
+/// Small version of cover image — plenty for blurred backdrops.
 String smallArt(String url) => url.replaceFirst('500x500', '150x150');
 
 // ---------------------------------------------------------------------------

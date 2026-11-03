@@ -2,7 +2,7 @@
 
 A music streaming app built with Flutter, with a bold editorial design: ink-black and warm off-white screens, condensed headlines and a single neon accent. The accent **changes with every song**, using a color taken from the album art.
 
-> ⚠️ **Learning project only.** Music comes from JioSaavn's **unofficial** API (via the [`jiosaavn`](https://pub.dev/packages/jiosaavn) package). Those songs are copyrighted, and using these endpoints goes against JioSaavn's Terms of Service. Don't publish this app to the Play Store / App Store, and don't monetize it. See [Switching the music source](#switching-the-music-source) for legal alternatives.
+> ⚠️ **Learning project only.** Music comes from cloud_media's **unofficial** API (via the [`cloud_media`](https://pub.dev/packages/cloud_media) package). Those songs are copyrighted, and using these endpoints goes against cloud_media's Terms of Service. Don't publish this app to the Play Store / App Store, and don't monetize it. See [Switching the music source](#switching-the-music-source) for legal alternatives.
 
 ---
 
@@ -101,7 +101,7 @@ lib/
 ├── data/                         # No Flutter UI code in here
 │   ├── models.dart               # Track, Artist, Album, Mix, UserPlaylist, Lyrics
 │   ├── music_repository.dart     # Interface the UI talks to
-│   ├── jiosaavn_repository.dart  # JioSaavn implementation (+ request cache)
+│   ├── cloud_media_repository.dart  # cloud_media implementation (+ request cache)
 │   ├── lyrics_repository.dart    # LRCLIB lyrics (synced + plain)
 │   └── catalog.dart              # Curated mixes, genres, artists (edit freely)
 ├── state/                        # ChangeNotifiers (provider)
@@ -151,7 +151,7 @@ Black-and-white covers get a color from a small neon palette instead, and the sa
 
 ## Customizing
 
-- **Home / Search content:** edit [`lib/data/catalog.dart`](lib/data/catalog.dart). Each mix is a list of search queries whose results are interleaved and de-duplicated. JioSaavn search mostly matches song titles, so **artist names work best** as queries.
+- **Home / Search content:** edit [`lib/data/catalog.dart`](lib/data/catalog.dart). Each mix is a list of search queries whose results are interleaved and de-duplicated. cloud_media search mostly matches song titles, so **artist names work best** as queries.
 - **Colors and fonts:** [`lib/core/theme/app_theme.dart`](lib/core/theme/app_theme.dart)
 - **Onboarding image:** add `assets/images/onboarding_hero.png`. Until then, a headphones icon is shown.
 - **App name:** currently "Pulse". Change it in `lib/main.dart` (`title`), `android/app/src/main/AndroidManifest.xml` (`android:label`) and `ios/Runner/Info.plist` (`CFBundleDisplayName`).
@@ -159,7 +159,7 @@ Black-and-white covers get a color from a small neon palette instead, and the sa
 ### Switching the music source
 Implement `MusicRepository` for another provider and swap it in `main.dart`:
 ```dart
-Provider<MusicRepository>(create: (_) => JioSaavnRepository()),
+Provider<MusicRepository>(create: (_) => CloudMediaRepository()),
 ```
 Legal options for a public release:
 - [Jamendo API](https://developer.jamendo.com/): free, full-length Creative Commons tracks (free API key)
@@ -172,7 +172,7 @@ Legal options for a public release:
 
 | Package | Why |
 |---|---|
-| `jiosaavn` | JioSaavn search, songs, albums, artists (unofficial) |
+| `cloud_media` | cloud_media search, songs, albums, artists (unofficial) |
 | `just_audio` + `just_audio_background` | Playback, playlist queue, background audio + lock-screen controls |
 | `provider` | State management |
 | `cached_network_image` | Artwork loading + caching |
@@ -187,8 +187,8 @@ Lyrics come from [LRCLIB](https://lrclib.net), a free, open lyrics database. No 
 
 ## Known limitations
 
-- **Unofficial API:** JioSaavn can change or block its endpoints at any time, which would break search and playback.
-- **Mixes are search-based:** the package doesn't expose JioSaavn playlists, so "Chill Mix", the genres and so on are built from searches, and results can sometimes be off-topic.
+- **Unofficial API:** cloud_media can change or block its endpoints at any time, which would break search and playback.
+- **Mixes are search-based:** the package doesn't expose cloud_media playlists, so "Chill Mix", the genres and so on are built from searches, and results can sometimes be off-topic.
 - **Lyrics** aren't available for every song, especially regional tracks.
 - **Library is stored on the device only:** there are no accounts and no sync. Uninstalling the app deletes it.
 - **Not tested on Android** (Android is configured, but the app has only been run on the iOS Simulator so far).
