@@ -60,10 +60,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                           onTap: widget.onOpenSearch,
                         ),
                         IconBtn(
-                          Icons.notifications_none_rounded,
-                          tooltip: 'Notifications',
-                          onTap: () =>
-                              showSnack(context, 'No new notifications'),
+                          Icons.shield_outlined,
+                          tooltip: 'Privacy Policy',
+                          onTap: context.openPrivacyPolicy,
                         ),
                       ],
                     ),

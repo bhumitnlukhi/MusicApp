@@ -8,6 +8,7 @@ import '../../state/library_controller.dart';
 import '../widgets/common.dart';
 import '../widgets/motion.dart';
 import 'home_shell.dart';
+import 'privacy_policy_screen.dart';
 
 /// First-launch welcome screen (light).
 class OnboardingScreen extends StatelessWidget {
@@ -161,6 +162,29 @@ class OnboardingScreen extends StatelessWidget {
                                             size: 18,
                                           ),
                                         ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Entrance(
+                                  index: 8,
+                                  child: Center(
+                                    child: GestureDetector(
+                                      onTap: () => Navigator.of(context).push(
+                                        MaterialPageRoute<void>(
+                                          builder: (_) =>
+                                              const PrivacyPolicyScreen(),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Privacy Policy & Legal',
+                                        style: AppText.ui(
+                                          12,
+                                          color: p.muted,
+                                        ).copyWith(
+                                          decoration: TextDecoration.underline,
+                                        ),
                                       ),
                                     ),
                                   ),

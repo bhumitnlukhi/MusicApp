@@ -5,6 +5,7 @@ import 'screens/artist_screen.dart';
 import 'screens/collection_screen.dart';
 import 'screens/lyrics_screen.dart';
 import 'screens/now_playing_screen.dart';
+import 'screens/privacy_policy_screen.dart';
 import 'screens/queue_screen.dart';
 import 'widgets/motion.dart';
 
@@ -37,4 +38,6 @@ extension AppNavigation on BuildContext {
   Future<void> openLyrics() => _pushUp(const LyricsScreen());
 
   Future<void> openQueue() => _pushUp(const QueueScreen());
+
+  Future<void> openPrivacyPolicy() => _push(const PrivacyPolicyScreen());
 }

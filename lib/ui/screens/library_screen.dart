@@ -37,6 +37,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 title: 'Your Library',
                 actions: [
                   IconBtn(
+                    Icons.shield_outlined,
+                    tooltip: 'Privacy Policy',
+                    onTap: context.openPrivacyPolicy,
+                  ),
+                  IconBtn(
                     Icons.add_rounded,
                     tooltip: 'New playlist',
                     onTap: () => showCreatePlaylistDialog(context),
@@ -147,6 +152,22 @@ class _PlaylistsTab extends StatelessWidget {
             onTap: () => context.openPlaylist(playlist.id),
             onMore: () => _showPlaylistMenu(context, playlist),
           ),
+        const SizedBox(height: 16),
+        _LibraryRow(
+          leading: Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: p.surface,
+              border: Border.all(color: p.border),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(Icons.shield_outlined, color: p.accentText, size: 22),
+          ),
+          title: 'Privacy Policy',
+          subtitle: 'Zero data collection • 100% on-device',
+          onTap: context.openPrivacyPolicy,
+        ),
       ],
     );
   }
