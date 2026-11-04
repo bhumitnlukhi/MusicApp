@@ -14,30 +14,30 @@
   <style>
     /* Dark Theme */
     :root {
-      --bg: #0A0B0E;
-      --bg-gradient: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(94, 106, 210, 0.12), rgba(0, 0, 0, 0) 70%);
-      --surface: #12141A;
-      --surface-elevated: #181B23;
-      --surface-border: #232733;
-      --surface-border-hover: #323849;
-      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.45);
-      --text-primary: #F1F3F7;
-      --text-secondary: #949BA8;
-      --text-tertiary: #636B7A;
+      --bg: #0B0E14;
+      --bg-gradient: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99, 102, 241, 0.15), rgba(0, 0, 0, 0) 70%);
+      --surface: #141824;
+      --surface-elevated: #1C2233;
+      --surface-border: #283046;
+      --surface-border-hover: #3E4B6E;
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+      --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.6);
+      --text-primary: #F3F4F8;
+      --text-secondary: #9DA7B8;
+      --text-tertiary: #677489;
       --accent: #6366F1;
-      --accent-soft: rgba(99, 102, 241, 0.12);
-      --accent-border: rgba(99, 102, 241, 0.3);
-      --badge-bg: rgba(255, 255, 255, 0.05);
-      --badge-border: rgba(255, 255, 255, 0.1);
-      --badge-text: #949BA8;
-      --code-bg: #181B23;
+      --accent-soft: rgba(99, 102, 241, 0.15);
+      --accent-border: rgba(99, 102, 241, 0.35);
+      --badge-bg: rgba(255, 255, 255, 0.06);
+      --badge-border: rgba(255, 255, 255, 0.12);
+      --badge-text: #9DA7B8;
+      --code-bg: #1C2233;
       --code-color: #E2E8F0;
-      --code-border: #2B303F;
-      --toc-bg: #181B23;
-      --toc-color: #949BA8;
-      --toc-border: #232733;
-      --toc-hover-bg: #20242F;
+      --code-border: #283046;
+      --toc-bg: #1C2233;
+      --toc-color: #9DA7B8;
+      --toc-border: #283046;
+      --toc-hover-bg: #242B3F;
       --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
@@ -45,32 +45,32 @@
       --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Light Theme — Apple & Linear Inspired (Warm Soft Canvas + Pure White Cards) */
+    /* Light Theme (Clean Crisp Card Architecture on Soft Slate Canvas) */
     [data-theme="light"] {
-      --bg: #F5F5F7;
+      --bg: #EEF2F6;
       --bg-gradient: none;
       --surface: #FFFFFF;
-      --surface-elevated: #F9FAFB;
-      --surface-border: #E5E7EB;
-      --surface-border-hover: #D1D5DB;
-      --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
-      --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
-      --text-primary: #1D1D1F;
-      --text-secondary: #515154;
-      --text-tertiary: #86868B;
-      --accent: #0066CC;
-      --accent-soft: #F0F6FF;
-      --accent-border: #BFDBFE;
-      --badge-bg: #EAEAEF;
-      --badge-border: #DCDCE2;
-      --badge-text: #424245;
-      --code-bg: #F5F5F7;
-      --code-color: #1D1D1F;
-      --code-border: #E5E5EA;
-      --toc-bg: #F5F5F7;
-      --toc-color: #515154;
-      --toc-border: #E5E5EA;
-      --toc-hover-bg: #EAEAEF;
+      --surface-elevated: #F8FAFC;
+      --surface-border: #CBD5E1;
+      --surface-border-hover: #94A3B8;
+      --card-shadow: 0 4px 14px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+      --card-shadow-hover: 0 8px 24px rgba(15, 23, 42, 0.1);
+      --text-primary: #0F172A;
+      --text-secondary: #334155;
+      --text-tertiary: #64748B;
+      --accent: #4F46E5;
+      --accent-soft: rgba(79, 70, 229, 0.08);
+      --accent-border: rgba(79, 70, 229, 0.25);
+      --badge-bg: #E2E8F0;
+      --badge-border: #CBD5E1;
+      --badge-text: #1E293B;
+      --code-bg: #F1F5F9;
+      --code-color: #0F172A;
+      --code-border: #CBD5E1;
+      --toc-bg: #F8FAFC;
+      --toc-color: #334155;
+      --toc-border: #CBD5E1;
+      --toc-hover-bg: #E2E8F0;
     }
 
     * {
@@ -100,9 +100,9 @@
 
     /* Container */
     .container {
-      max-width: 820px;
+      max-width: 840px;
       margin: 0 auto;
-      padding: 60px 24px 120px;
+      padding: 48px 24px 120px;
     }
 
     /* Top Navigation */
@@ -110,7 +110,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 56px;
+      margin-bottom: 32px;
       padding-bottom: 20px;
       border-bottom: 1px solid var(--surface-border);
     }
@@ -125,7 +125,7 @@
     .brand-title {
       font-family: var(--font-heading);
       font-weight: 800;
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       letter-spacing: -0.03em;
       color: var(--text-primary);
     }
@@ -137,8 +137,8 @@
     }
 
     .theme-toggle {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border-radius: 10px;
       background: var(--surface);
       border: 1px solid var(--surface-border);
@@ -158,14 +158,20 @@
     }
 
     .theme-toggle svg {
-      width: 17px;
-      height: 17px;
+      width: 18px;
+      height: 18px;
       fill: currentColor;
     }
 
-    /* Hero Section */
-    .hero {
-      margin-bottom: 48px;
+    /* Hero Card */
+    .hero-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--card-radius);
+      padding: 36px 32px;
+      margin-bottom: 20px;
+      box-shadow: var(--card-shadow);
+      transition: var(--transition);
     }
 
     .hero-tag {
@@ -179,33 +185,36 @@
       border: 1px solid var(--badge-border);
       padding: 5px 12px;
       border-radius: 9999px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       display: inline-block;
     }
 
-    .hero h1 {
+    .hero-card h1 {
       font-family: var(--font-heading);
-      font-size: clamp(2.4rem, 5.5vw, 3.4rem);
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
       font-weight: 800;
       letter-spacing: -0.035em;
       line-height: 1.1;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       color: var(--text-primary);
     }
 
-    .hero p {
-      font-size: 1.12rem;
+    .hero-card p {
+      font-size: 1.08rem;
       line-height: 1.65;
       color: var(--text-secondary);
-      max-width: 680px;
+      max-width: 720px;
       font-weight: 400;
     }
 
     .hero-meta {
       display: flex;
-      gap: 18px;
+      flex-wrap: wrap;
+      gap: 14px;
       margin-top: 22px;
-      font-size: 0.85rem;
+      padding-top: 18px;
+      border-top: 1px solid var(--surface-border);
+      font-size: 0.84rem;
       color: var(--text-tertiary);
       font-family: var(--font-mono);
     }
@@ -215,7 +224,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 16px;
-      margin-bottom: 48px;
+      margin-bottom: 20px;
     }
 
     .pillar-card {
@@ -266,14 +275,14 @@
       line-height: 1.55;
     }
 
-    /* Table of Contents */
+    /* Table of Contents Card */
     .toc-bar {
       background: var(--surface);
       border: 1px solid var(--surface-border);
       border-radius: var(--card-radius);
       padding: 22px 24px;
       box-shadow: var(--card-shadow);
-      margin-bottom: 56px;
+      margin-bottom: 24px;
     }
 
     .toc-heading {
@@ -313,22 +322,34 @@
       transform: translateY(-1px);
     }
 
-    /* Content Sections */
+    /* Content Sections as Prominent Boxed Cards */
     section {
-      margin-bottom: 52px;
-      scroll-margin-top: 40px;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--card-radius);
+      padding: 32px 30px;
+      margin-bottom: 24px;
+      box-shadow: var(--card-shadow);
+      scroll-margin-top: 30px;
+      transition: var(--transition);
+    }
+
+    section:hover {
+      border-color: var(--surface-border-hover);
     }
 
     .section-title {
       font-family: var(--font-heading);
-      font-size: 1.45rem;
+      font-size: 1.4rem;
       font-weight: 700;
       letter-spacing: -0.025em;
       color: var(--text-primary);
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--surface-border);
     }
 
     .section-index {
@@ -339,9 +360,9 @@
       color: var(--accent);
       background: var(--accent-soft);
       border: 1px solid var(--accent-border);
-      padding: 3px 9px;
-      border-radius: 7px;
-      line-height: 1.25;
+      padding: 4px 10px;
+      border-radius: 8px;
+      line-height: 1.2;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -361,7 +382,7 @@
 
     ul {
       list-style: none;
-      margin: 16px 0 24px;
+      margin: 16px 0 20px;
       padding: 0;
     }
 
@@ -392,12 +413,11 @@
 
     /* Inset Cards */
     .inset-card {
-      background: var(--surface);
+      background: var(--surface-elevated);
       border: 1px solid var(--surface-border);
-      border-radius: var(--card-radius);
-      padding: 24px;
-      margin: 20px 0;
-      box-shadow: var(--card-shadow);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin: 16px 0;
     }
 
     .inset-card h4 {
@@ -417,11 +437,10 @@
     /* Permissions Table */
     .table-container {
       border: 1px solid var(--surface-border);
-      border-radius: var(--card-radius);
+      border-radius: 12px;
       overflow: hidden;
-      margin: 24px 0;
+      margin: 20px 0 8px;
       background: var(--surface);
-      box-shadow: var(--card-shadow);
     }
 
     table {
@@ -466,14 +485,13 @@
       font-weight: 500;
     }
 
-    /* Contact Card */
-    .contact-panel {
-      background: var(--surface);
+    /* Contact Box */
+    .contact-box {
+      background: var(--surface-elevated);
       border: 1px solid var(--surface-border);
-      border-radius: var(--card-radius);
-      padding: 28px 32px;
-      margin-top: 20px;
-      box-shadow: var(--card-shadow);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-top: 16px;
     }
 
     .contact-meta-label {
@@ -483,7 +501,7 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--text-tertiary);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .contact-link {
@@ -501,8 +519,8 @@
 
     /* Footer */
     footer {
-      margin-top: 80px;
-      padding-top: 32px;
+      margin-top: 40px;
+      padding-top: 28px;
       border-top: 1px solid var(--surface-border);
       display: flex;
       align-items: center;
@@ -530,13 +548,19 @@
 
     @media (max-width: 720px) {
       .container {
-        padding: 40px 18px 80px;
+        padding: 32px 16px 80px;
       }
       .pillars-grid {
         grid-template-columns: 1fr;
       }
-      .hero h1 {
-        font-size: 2.3rem;
+      .hero-card {
+        padding: 26px 20px;
+      }
+      section {
+        padding: 24px 18px;
+      }
+      .hero-card h1 {
+        font-size: 2.1rem;
       }
     }
   </style>
@@ -562,8 +586,8 @@
       </div>
     </header>
 
-    <!-- Hero Header -->
-    <div class="hero">
+    <!-- Hero Card Box -->
+    <div class="hero-card">
       <span class="hero-tag">Transparency & Trust</span>
       <h1>Privacy Policy</h1>
       <p>
@@ -578,7 +602,7 @@
       </div>
     </div>
 
-    <!-- 3 Pillars Grid -->
+    <!-- 3 Pillars Grid (Cards) -->
     <div class="pillars-grid">
       <div class="pillar-card">
         <div class="pillar-icon">
@@ -605,7 +629,7 @@
       </div>
     </div>
 
-    <!-- Table of Contents -->
+    <!-- Table of Contents (Card Box) -->
     <div class="toc-bar">
       <div class="toc-heading">Contents</div>
       <ul class="toc-list">
@@ -620,7 +644,7 @@
       </ul>
     </div>
 
-    <!-- SECTION 1 -->
+    <!-- SECTION 1 (Card Box) -->
     <section id="data-not-collected">
       <h2 class="section-title"><span class="section-index">01</span> Information We Do Not Collect</h2>
       <p>
@@ -635,7 +659,7 @@
       </ul>
     </section>
 
-    <!-- SECTION 2 -->
+    <!-- SECTION 2 (Card Box) -->
     <section id="on-device-data">
       <h2 class="section-title"><span class="section-index">02</span> Information Handled Locally On Your Device</h2>
       <p>
@@ -657,7 +681,7 @@
       </p>
     </section>
 
-    <!-- SECTION 3 -->
+    <!-- SECTION 3 (Card Box) -->
     <section id="network-services">
       <h2 class="section-title"><span class="section-index">03</span> Network Requests & Content Providers</h2>
       <p>
@@ -670,7 +694,7 @@
       </ul>
     </section>
 
-    <!-- SECTION 4 -->
+    <!-- SECTION 4 (Card Box) -->
     <section id="permissions">
       <h2 class="section-title"><span class="section-index">04</span> Device Permissions</h2>
       <p>
@@ -707,7 +731,7 @@
       </div>
     </section>
 
-    <!-- SECTION 5 -->
+    <!-- SECTION 5 (Card Box) -->
     <section id="copyright">
       <h2 class="section-title"><span class="section-index">05</span> Content Aggregation & DMCA</h2>
       <p>
@@ -721,7 +745,7 @@
       </div>
     </section>
 
-    <!-- SECTION 6 -->
+    <!-- SECTION 6 (Card Box) -->
     <section id="security">
       <h2 class="section-title"><span class="section-index">06</span> Data Security</h2>
       <p>
@@ -729,7 +753,7 @@
       </p>
     </section>
 
-    <!-- SECTION 7 -->
+    <!-- SECTION 7 (Card Box) -->
     <section id="children">
       <h2 class="section-title"><span class="section-index">07</span> Children's Privacy</h2>
       <p>
@@ -737,14 +761,14 @@
       </p>
     </section>
 
-    <!-- SECTION 8 -->
+    <!-- SECTION 8 (Card Box) -->
     <section id="contact">
       <h2 class="section-title"><span class="section-index">08</span> Contact Us</h2>
       <p>
         If you have any questions, feedback, or inquiries regarding this Privacy Policy, please reach out to us:
       </p>
 
-      <div class="contact-panel">
+      <div class="contact-box">
         <div class="contact-meta-label">Email Address</div>
         <a href="mailto:bestminders@gmail.com" class="contact-link">bestminders@gmail.com</a>
       </div>
