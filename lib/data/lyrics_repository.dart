@@ -11,7 +11,7 @@ class LyricsRepository {
           Dio(
             BaseOptions(
               baseUrl: 'https://lrclib.net/api',
-              headers: {'User-Agent': 'PulseMusicApp/1.0 (learning project)'},
+              headers: {'User-Agent': 'MelofyMusicApp/1.0 (learning project)'},
               connectTimeout: const Duration(seconds: 10),
               receiveTimeout: const Duration(seconds: 10),
             ),

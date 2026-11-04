@@ -55,7 +55,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                         const DisplayTitle('PRIVACY POLICY', size: 36),
                         const SizedBox(height: 8),
                         Text(
-                          'Pulse is designed with privacy at its foundation. Listening to music shouldn\'t require surrendering your personal data.',
+                          'Melofy is designed with privacy at its foundation. Listening to music shouldn\'t require surrendering your personal data.',
                           style: AppText.ui(13.5, color: p.muted, height: 1.5),
                         ),
                         const SizedBox(height: 12),
@@ -126,7 +126,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Pulse does not operate user accounts, cloud databases, or tracking infrastructure. We do not collect, monetize, or transmit:',
+                            'Melofy does not operate user accounts, cloud databases, or tracking infrastructure. We do not collect, monetize, or transmit:',
                             style: AppText.ui(
                               13.5,
                               color: p.fg.withValues(alpha: 0.9),
@@ -142,7 +142,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                           _BulletPoint(
                             title: 'Financial Information',
                             desc:
-                                'Pulse is completely free. No payment details or bank accounts.',
+                                'Melofy is completely free. No payment details or bank accounts.',
                           ),
                           _BulletPoint(
                             title: 'Location Data',
@@ -182,7 +182,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                           _InsetCard(
                             title: 'Playlists & Liked Songs',
                             desc:
-                                'Saved locally in SQLite and SharedPreferences. Accessible only inside Pulse and never synced to external servers.',
+                                'Saved locally in SQLite and SharedPreferences. Accessible only inside Melofy and never synced to external servers.',
                           ),
                           const SizedBox(height: 10),
                           _InsetCard(
@@ -192,7 +192,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Permanent Data Deletion: Because data is stored only on-device, selecting "Clear Storage" in Android settings or uninstalling Pulse immediately and permanently erases 100% of your data.',
+                            'Permanent Data Deletion: Because data is stored only on-device, selecting "Clear Storage" in Android settings or uninstalling Melofy immediately and permanently erases 100% of your data.',
                             style: AppText.ui(
                               12.5,
                               color: p.muted,
@@ -212,7 +212,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Pulse makes secure HTTPS requests to deliver music streaming and synchronized lyrics:',
+                            'Melofy makes secure HTTPS requests to deliver music streaming and synchronized lyrics:',
                             style: AppText.ui(
                               13.5,
                               color: p.fg.withValues(alpha: 0.9),
@@ -248,7 +248,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Pulse adheres strictly to Google Play\'s Least Privilege model and requests only essential playback permissions:',
+                            'Melofy adheres strictly to Google Play\'s Least Privilege model and requests only essential playback permissions:',
                             style: AppText.ui(
                               13.5,
                               color: p.fg.withValues(alpha: 0.9),
@@ -289,7 +289,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Pulse functions strictly as an audio player client and indexing interface. Pulse does not own, host, produce, or upload media files to any remote server.',
+                            'Melofy functions strictly as an audio player client and indexing interface. Melofy does not own, host, produce, or upload media files to any remote server.',
                             style: AppText.ui(
                               13.5,
                               color: p.fg.withValues(alpha: 0.9),
@@ -312,7 +312,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       index: '06',
                       title: 'Data Security',
                       child: Text(
-                        'Because Pulse does not maintain external accounts or cloud user databases, your listening history is immune to remote data breaches. All network communications use standard Transport Layer Security (HTTPS/TLS) encryption.',
+                        'Because Melofy does not maintain external accounts or cloud user databases, your listening history is immune to remote data breaches. All network communications use standard Transport Layer Security (HTTPS/TLS) encryption.',
                         style: AppText.ui(
                           13.5,
                           color: p.fg.withValues(alpha: 0.9),
@@ -327,7 +327,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       index: '07',
                       title: 'Children\'s Privacy',
                       child: Text(
-                        'Pulse does not knowingly collect personal information from children under 13 (or under 16 in the EU). Because no personal information is collected from any user, children\'s privacy is preserved by design under COPPA and GDPR.',
+                        'Melofy does not knowingly collect personal information from children under 13 (or under 16 in the EU). Because no personal information is collected from any user, children\'s privacy is preserved by design under COPPA and GDPR.',
                         style: AppText.ui(
                           13.5,
                           color: p.fg.withValues(alpha: 0.9),
@@ -427,7 +427,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                     // Footer Notice
                     Center(
                       child: Text(
-                        '© 2026 Pulse. All rights reserved.',
+                        '© 2026 Melofy. All rights reserved.',
                         style: AppText.mono(11, color: p.muted),
                       ),
                     ),

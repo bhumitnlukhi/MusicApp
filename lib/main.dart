@@ -54,7 +54,7 @@ class MusicApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pulse',
+      title: 'Melofy',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       scrollBehavior: const _SmoothScrollBehavior(),

@@ -1,4 +1,4 @@
-# Pulse — Flutter Music App
+# Melofy — Flutter Music App
 
 A music streaming app built with Flutter, with a bold editorial design: ink-black and warm off-white screens, condensed headlines and a single neon accent. The accent **changes with every song**, using a color taken from the album art.
 
@@ -154,7 +154,7 @@ Black-and-white covers get a color from a small neon palette instead, and the sa
 - **Home / Search content:** edit [`lib/data/catalog.dart`](lib/data/catalog.dart). Each mix is a list of search queries whose results are interleaved and de-duplicated. cloud_media search mostly matches song titles, so **artist names work best** as queries.
 - **Colors and fonts:** [`lib/core/theme/app_theme.dart`](lib/core/theme/app_theme.dart)
 - **Onboarding image:** add `assets/images/onboarding_hero.png`. Until then, a headphones icon is shown.
-- **App name:** currently "Pulse". Change it in `lib/main.dart` (`title`), `android/app/src/main/AndroidManifest.xml` (`android:label`) and `ios/Runner/Info.plist` (`CFBundleDisplayName`).
+- **App name:** currently "Melofy". Configured in `lib/main.dart` (`title`), `android/app/src/main/AndroidManifest.xml` (`android:label`) and `ios/Runner/Info.plist` (`CFBundleDisplayName`).
 
 ### Switching the music source
 Implement `MusicRepository` for another provider and swap it in `main.dart`:
