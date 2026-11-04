@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +10,7 @@ import 'data/lyrics_repository.dart';
 import 'data/music_repository.dart';
 import 'state/accent_controller.dart';
 import 'state/library_controller.dart';
+import 'state/local_audio_controller.dart';
 import 'state/player_controller.dart';
 import 'ui/screens/home_shell.dart';
 import 'ui/screens/onboarding_screen.dart';
@@ -34,6 +37,9 @@ Future<void> main() async {
         ChangeNotifierProvider.value(value: library),
         ChangeNotifierProvider(
           create: (_) => PlayerController(onTrackStarted: library.addRecent),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LocalAudioController()..checkAndLoad(),
         ),
         // New accent color for every song, taken from its album art.
         ChangeNotifierProvider(

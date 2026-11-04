@@ -276,6 +276,11 @@ class PrivacyPolicyScreen extends StatelessWidget {
                             desc:
                                 'Shows lock screen and notification tray media player controls (Android 13+).',
                           ),
+                          _PermissionRow(
+                            code: 'READ_MEDIA_AUDIO / STORAGE',
+                            desc:
+                                'Discovers and plays local audio files stored on device storage for offline playback. Files are never uploaded or copied.',
+                          ),
                         ],
                       ),
                     ),

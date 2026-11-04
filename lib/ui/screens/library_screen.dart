@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models.dart';
 import '../../state/library_controller.dart';
+import '../../state/local_audio_controller.dart';
 import '../../state/player_controller.dart';
 import '../navigation.dart';
 import '../widgets/common.dart';
@@ -19,7 +20,7 @@ class LibraryScreen extends StatefulWidget {
 }
 
 class _LibraryScreenState extends State<LibraryScreen> {
-  static const _tabs = ['Playlists', 'Artists', 'Albums', 'Liked'];
+  static const _tabs = ['Playlists', 'Device Audio', 'Artists', 'Albums', 'Liked'];
   int _tab = 0;
 
   @override
@@ -73,8 +74,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     key: ValueKey(_tab),
                     child: switch (_tab) {
                       0 => const _PlaylistsTab(),
-                      1 => const _ArtistsTab(),
-                      2 => const _AlbumsTab(),
+                      1 => const _DeviceAudioTab(),
+                      2 => const _ArtistsTab(),
+                      3 => const _AlbumsTab(),
                       _ => const _LikedTab(),
                     },
                   ),
@@ -418,6 +420,179 @@ class _LibraryRow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+
+class _DeviceAudioTab extends StatelessWidget {
+  const _DeviceAudioTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final local = context.watch<LocalAudioController>();
+    final player = context.read<PlayerController>();
+    final p = context.palette;
+
+    if (local.isLoading) {
+      return Center(
+        child: CircularProgressIndicator(color: p.accentText),
+      );
+    }
+
+    if (!local.hasPermission) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: p.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: p.border),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: p.isDark
+                        ? AppColors.inkBorder
+                        : AppColors.paperBorder.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    Icons.folder_open_rounded,
+                    color: p.accentText,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'OFFLINE AUDIO FILES',
+                  style: AppText.ui(
+                    15,
+                    weight: FontWeight.w700,
+                    color: p.fg,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Melofy can play your local MP3, M4A, WAV, and FLAC audio files directly from device storage without internet.',
+                  textAlign: TextAlign.center,
+                  style: AppText.ui(13, color: p.muted, height: 1.5),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: FilledButton.icon(
+                    onPressed: local.requestAndLoad,
+                    icon: const Icon(Icons.security_rounded, size: 18),
+                    label: Text(
+                      'Scan Device Audio',
+                      style: AppText.ui(14, weight: FontWeight.w600),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: p.isDark ? AppColors.paper : AppColors.ink,
+                      foregroundColor: p.isDark ? AppColors.ink : AppColors.paper,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (local.tracks.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.audio_file_outlined, size: 54, color: p.muted),
+              const SizedBox(height: 12),
+              Text(
+                'No Local Audio Files Found',
+                style: AppText.ui(16, weight: FontWeight.w600, color: p.fg),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Add MP3 or audio files to your Music or Download folder and tap refresh.',
+                textAlign: TextAlign.center,
+                style: AppText.ui(13, color: p.muted),
+              ),
+              const SizedBox(height: 16),
+              TextButton.icon(
+                onPressed: local.loadTracks,
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('Refresh'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 24),
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+          child: Row(
+            children: [
+              Text(
+                '${local.count} AUDIO FILES',
+                style: AppText.mono(11, color: p.muted, weight: FontWeight.w600),
+              ),
+              const Spacer(),
+              Pressable(
+                onTap: () => player.shufflePlay(local.tracks),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: p.surface,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: p.border),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.shuffle_rounded, size: 14, color: p.accentText),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Shuffle All',
+                        style: AppText.ui(12, weight: FontWeight.w600, color: p.fg),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconBtn(
+                Icons.refresh_rounded,
+                tooltip: 'Re-scan',
+                onTap: local.loadTracks,
+              ),
+            ],
+          ),
+        ),
+        for (final (i, track) in local.tracks.indexed)
+          TrackTile(
+            number: '${i + 1}'.padLeft(2, '0'),
+            track: track,
+            onTap: () => player.playTracks(local.tracks, index: i),
+          ),
+      ],
     );
   }
 }
