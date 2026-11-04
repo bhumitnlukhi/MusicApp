@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* Dark Theme Default */
+    /* Dark Theme */
     :root {
       --bg: #0A0B0E;
       --bg-gradient: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(94, 106, 210, 0.12), rgba(0, 0, 0, 0) 70%);
@@ -30,6 +30,7 @@
       --accent-border: rgba(99, 102, 241, 0.3);
       --badge-bg: rgba(255, 255, 255, 0.05);
       --badge-border: rgba(255, 255, 255, 0.1);
+      --badge-text: #949BA8;
       --code-bg: #181B23;
       --code-color: #E2E8F0;
       --code-border: #2B303F;
@@ -40,35 +41,36 @@
       --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
-      --card-radius: 14px;
+      --card-radius: 16px;
       --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Light Theme (Clean, Crisp Slate & White) */
+    /* Light Theme — Apple & Linear Inspired (Warm Soft Canvas + Pure White Cards) */
     [data-theme="light"] {
-      --bg: #FFFFFF;
+      --bg: #F5F5F7;
       --bg-gradient: none;
-      --surface: #F8FAFC;
-      --surface-elevated: #FFFFFF;
-      --surface-border: #E2E8F0;
-      --surface-border-hover: #CBD5E1;
-      --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-      --card-shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.06);
-      --text-primary: #0F172A;
-      --text-secondary: #475569;
-      --text-tertiary: #64748B;
-      --accent: #4F46E5;
-      --accent-soft: #EEF2FF;
-      --accent-border: #C7D2FE;
-      --badge-bg: #F1F5F9;
-      --badge-border: #E2E8F0;
-      --code-bg: #F1F5F9;
-      --code-color: #0F172A;
-      --code-border: #E2E8F0;
-      --toc-bg: #FFFFFF;
-      --toc-color: #334155;
-      --toc-border: #E2E8F0;
-      --toc-hover-bg: #F1F5F9;
+      --surface: #FFFFFF;
+      --surface-elevated: #F9FAFB;
+      --surface-border: #E5E7EB;
+      --surface-border-hover: #D1D5DB;
+      --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+      --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+      --text-primary: #1D1D1F;
+      --text-secondary: #515154;
+      --text-tertiary: #86868B;
+      --accent: #0066CC;
+      --accent-soft: #F0F6FF;
+      --accent-border: #BFDBFE;
+      --badge-bg: #EAEAEF;
+      --badge-border: #DCDCE2;
+      --badge-text: #424245;
+      --code-bg: #F5F5F7;
+      --code-color: #1D1D1F;
+      --code-border: #E5E5EA;
+      --toc-bg: #F5F5F7;
+      --toc-color: #515154;
+      --toc-border: #E5E5EA;
+      --toc-hover-bg: #EAEAEF;
     }
 
     * {
@@ -93,14 +95,14 @@
       background-image: var(--bg-gradient);
       background-repeat: no-repeat;
       position: relative;
-      transition: background-color 0.2s ease, color 0.2s ease;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
     /* Container */
     .container {
       max-width: 820px;
       margin: 0 auto;
-      padding: 56px 24px 120px;
+      padding: 60px 24px 120px;
     }
 
     /* Top Navigation */
@@ -140,6 +142,7 @@
       border-radius: 10px;
       background: var(--surface);
       border: 1px solid var(--surface-border);
+      box-shadow: var(--card-shadow);
       color: var(--text-secondary);
       cursor: pointer;
       display: flex;
@@ -151,7 +154,7 @@
     .theme-toggle:hover {
       color: var(--text-primary);
       border-color: var(--surface-border-hover);
-      background: var(--surface-elevated);
+      transform: translateY(-1px);
     }
 
     .theme-toggle svg {
@@ -167,16 +170,16 @@
 
     .hero-tag {
       font-family: var(--font-heading);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--accent);
-      background: var(--accent-soft);
-      border: 1px solid var(--accent-border);
-      padding: 4px 10px;
-      border-radius: 6px;
-      margin-bottom: 16px;
+      letter-spacing: 0.06em;
+      color: var(--badge-text);
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      margin-bottom: 18px;
       display: inline-block;
     }
 
@@ -186,7 +189,7 @@
       font-weight: 800;
       letter-spacing: -0.035em;
       line-height: 1.1;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       color: var(--text-primary);
     }
 
@@ -201,7 +204,7 @@
     .hero-meta {
       display: flex;
       gap: 18px;
-      margin-top: 20px;
+      margin-top: 22px;
       font-size: 0.85rem;
       color: var(--text-tertiary);
       font-family: var(--font-mono);
@@ -219,7 +222,7 @@
       background: var(--surface);
       border: 1px solid var(--surface-border);
       border-radius: var(--card-radius);
-      padding: 24px;
+      padding: 26px 22px;
       box-shadow: var(--card-shadow);
       transition: var(--transition);
     }
@@ -231,15 +234,15 @@
     }
 
     .pillar-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: var(--surface-elevated);
-      border: 1px solid var(--surface-border);
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .pillar-icon svg {
@@ -250,15 +253,15 @@
 
     .pillar-card h3 {
       font-family: var(--font-heading);
-      font-size: 1.02rem;
+      font-size: 1.05rem;
       font-weight: 700;
       letter-spacing: -0.02em;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       color: var(--text-primary);
     }
 
     .pillar-card p {
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       color: var(--text-secondary);
       line-height: 1.55;
     }
@@ -268,7 +271,8 @@
       background: var(--surface);
       border: 1px solid var(--surface-border);
       border-radius: var(--card-radius);
-      padding: 20px 22px;
+      padding: 22px 24px;
+      box-shadow: var(--card-shadow);
       margin-bottom: 56px;
     }
 
@@ -295,7 +299,7 @@
       font-weight: 500;
       color: var(--toc-color);
       text-decoration: none;
-      padding: 6px 14px;
+      padding: 7px 14px;
       border-radius: 8px;
       background: var(--toc-bg);
       border: 1px solid var(--toc-border);
@@ -303,9 +307,9 @@
     }
 
     .toc-item a:hover {
-      color: var(--accent);
+      color: var(--text-primary);
       background: var(--toc-hover-bg);
-      border-color: var(--accent-border);
+      border-color: var(--surface-border-hover);
       transform: translateY(-1px);
     }
 
@@ -434,13 +438,13 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--text-tertiary);
-      padding: 15px 22px;
+      padding: 16px 22px;
       background: var(--surface-elevated);
       border-bottom: 1px solid var(--surface-border);
     }
 
     td {
-      padding: 16px 22px;
+      padding: 18px 22px;
       border-bottom: 1px solid var(--surface-border);
       color: var(--text-secondary);
       vertical-align: top;
