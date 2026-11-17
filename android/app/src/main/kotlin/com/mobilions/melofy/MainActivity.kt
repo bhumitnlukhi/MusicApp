@@ -1,4 +1,4 @@
-package com.mobilions.music_app
+package com.bestminders.melofy
 
 import android.Manifest
 import android.content.ContentUris
@@ -12,7 +12,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : AudioServiceActivity() {
-    private val CHANNEL = "com.mobilions.music_app/local_audio"
+    private val CHANNEL = "com.bestminders.music_app/local_audio"
     private val PERMISSION_REQUEST_CODE = 1001
     private var pendingResult: MethodChannel.Result? = null
 

@@ -6,7 +6,7 @@ import '../data/models.dart';
 /// Controller for querying and playing local offline audio files
 /// directly from the user's device storage.
 class LocalAudioController extends ChangeNotifier {
-  static const _channel = MethodChannel('com.mobilions.music_app/local_audio');
+  static const _channel = MethodChannel('com.bestminders.music_app/local_audio');
 
   bool _loading = false;
   bool _hasPermission = false;

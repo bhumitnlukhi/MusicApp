@@ -20,7 +20,7 @@ Future<void> main() async {
 
   // Background playback + lock-screen / notification controls.
   await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.mobilions.music_app.audio',
+    androidNotificationChannelId: 'com.bestminders.music_app.audio',
     androidNotificationChannelName: 'Playback',
     androidNotificationOngoing: true,
   );
